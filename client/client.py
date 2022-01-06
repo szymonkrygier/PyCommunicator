@@ -6,10 +6,12 @@ from PySide6.QtWidgets import QApplication, QWidget
 
 from client.form.frm_client_config import FrmClientConfig
 
+
 class Client:
     def __init__(self):
         super().__init__()
         self.init()
+
 
     def init(self):
         # Create QApplication instance
