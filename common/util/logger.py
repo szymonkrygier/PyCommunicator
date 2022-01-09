@@ -2,6 +2,7 @@
 # Szymon Krygier WCY19IJ1N1
 from datetime import datetime
 
+
 class Logger:
     @staticmethod
     def log(message):
