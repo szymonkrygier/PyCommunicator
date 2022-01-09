@@ -2,7 +2,7 @@
 # Szymon Krygier WCY19IJ1N1
 import sys
 
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QApplication
 
 from client.form.frm_client_config import FrmClientConfig
 
