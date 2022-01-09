@@ -1,4 +1,4 @@
-# Komunikator P2P z centralnym serwerem
+ # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
 import threading
 
@@ -8,35 +8,44 @@ from common.util.logger import Logger
 
 
 class ClientHandler(threading.Thread):
-    def __init__(self, server_handler, client_socket: socket, client_info):
+    def __init__(self, server_handler, client_info):
         super(ClientHandler, self).__init__()
         self.server_handler = server_handler
-        self.client_socket: socket = client_socket
         self.client_info = client_info
         self.connected = True
 
     def run(self):
         # Receive loop
         while self.connected:
+            try:
+                received_data = self.client_info.client_socket.recv(2048)
+            except socket.error:
+                self.server_handler.remove_client(self.client_info)
+                return
 
-            received_data = self.client_socket.recv(2048)
             self.parse_data_from_client(received_data)
 
     def parse_data_from_client(self, data):
         data_split = data.decode().split("^")
+        command = data_split[0]
 
-        if data.decode().startswith("[AUTH]"):
+        # [AUTH] - Client authentication
+        if command == "[AUTH]":
             nickname = data_split[1]
 
-            for (client_socket, client_info) in self.server_handler.connected_clients:
-                if client_info.nickname == nickname:
-                    Logger.log("Klient o nicku {0} juz istnieje. Klient {1} zostanie rozlaczony!".format(nickname, self.client_info.address))
-                    client_socket.send("[NAMETAKEN]".encode())
-                    self.server_handler.connected_clients.remove((client_socket, client_info))
-                    self.client_socket.close()
+            # Check if client with same nickname already exists
+            for client_entry in self.server_handler.connected_clients:
+                if client_entry.nickname == nickname:
+                    self.client_info.client_socket.send("[NAMETAKEN]".encode())
+                    self.client_info.client_socket.close()
+                    self.server_handler.connected_clients.remove(self.client_info)
                     self.connected = False
-                    break
+                    Logger.log("Klient o adresie {0} zostal wyrzucony: nickname {1} jest juz zajety!".format(
+                        self.client_info.ip + ":" + str(self.client_info.port), nickname))
+                    return
 
-            Logger.log("Poprawna autentykacja klienta {0} o nicku {1}".format(self.client_info.address, nickname))
+            # Authenticate client if nickname is not taken
             self.client_info.nickname = nickname
-            self.client_socket.send("[NAMEAVAILABLE]".encode())
+            self.client_info.client_socket.send("[AUTHENTICATED]".encode())
+            Logger.log("Poprawna autentykacja klienta o adresie {0} i nickname {1}".format(
+                self.client_info.ip + ":" + str(self.client_info.port), nickname))

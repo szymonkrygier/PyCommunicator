@@ -10,3 +10,6 @@ class FrmMain(QMainWindow, Ui_MainWindow):
         super(FrmMain, self).__init__()
         self.setupUi(self)
         self.client = client
+
+    def setup_form(self):
+        self.lbl_nickname.text = self.client.nickname

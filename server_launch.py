@@ -6,6 +6,7 @@ import sys
 
 from server.server import Server
 
+
 def run():
     if len(sys.argv) != 3:
         print("Niepoprawne argumenty! Poprawne uzycie: server_launch.py ip_serwera port_serwera")

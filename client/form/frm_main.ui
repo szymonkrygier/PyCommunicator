@@ -14,16 +14,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="list_available_users">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>241</width>
-      <height>241</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="lbl_available_users">
     <property name="geometry">
      <rect>
@@ -41,16 +31,6 @@
     </property>
     <property name="text">
      <string>Dostępni użytkownicy</string>
-    </property>
-   </widget>
-   <widget class="QListView" name="list_messages">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>40</y>
-      <width>791</width>
-      <height>471</height>
-     </rect>
     </property>
    </widget>
    <widget class="QLineEdit" name="tb_message">
@@ -265,6 +245,26 @@
     </property>
     <property name="text">
      <string>Rozłącz od użytkownika</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="list_messages">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>40</y>
+      <width>791</width>
+      <height>471</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="list_available_users">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>241</width>
+      <height>241</height>
+     </rect>
     </property>
    </widget>
   </widget>

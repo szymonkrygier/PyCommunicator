@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGroupBox, QLabel, QLineEdit,
-    QListView, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QWidget)
+    QListWidget, QListWidgetItem, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QStatusBar, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -26,9 +26,6 @@ class Ui_MainWindow(object):
         MainWindow.resize(1061, 625)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.list_available_users = QListView(self.centralwidget)
-        self.list_available_users.setObjectName(u"list_available_users")
-        self.list_available_users.setGeometry(QRect(10, 40, 241, 241))
         self.lbl_available_users = QLabel(self.centralwidget)
         self.lbl_available_users.setObjectName(u"lbl_available_users")
         self.lbl_available_users.setGeometry(QRect(10, 10, 241, 21))
@@ -36,9 +33,6 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         font.setBold(True)
         self.lbl_available_users.setFont(font)
-        self.list_messages = QListView(self.centralwidget)
-        self.list_messages.setObjectName(u"list_messages")
-        self.list_messages.setGeometry(QRect(260, 40, 791, 471))
         self.tb_message = QLineEdit(self.centralwidget)
         self.tb_message.setObjectName(u"tb_message")
         self.tb_message.setGeometry(QRect(260, 520, 681, 22))
@@ -92,6 +86,12 @@ class Ui_MainWindow(object):
         self.btn_disconnect_from_receiver = QPushButton(self.centralwidget)
         self.btn_disconnect_from_receiver.setObjectName(u"btn_disconnect_from_receiver")
         self.btn_disconnect_from_receiver.setGeometry(QRect(10, 320, 241, 24))
+        self.list_messages = QListWidget(self.centralwidget)
+        self.list_messages.setObjectName(u"list_messages")
+        self.list_messages.setGeometry(QRect(260, 40, 791, 471))
+        self.list_available_users = QListWidget(self.centralwidget)
+        self.list_available_users.setObjectName(u"list_available_users")
+        self.list_available_users.setGeometry(QRect(10, 40, 241, 241))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")

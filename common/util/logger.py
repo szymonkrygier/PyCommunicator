@@ -6,4 +6,6 @@ from datetime import datetime
 class Logger:
     @staticmethod
     def log(message):
-        print("[{0}] > {1}".format(datetime.now("%Y-%m-%d %H:%M"), message))
+        now = datetime.now()
+
+        print("[{0}] > {1}".format(now.strftime("%Y-%m-%d %H:%M"), message))
