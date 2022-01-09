@@ -7,6 +7,8 @@ from common.auth.client_info import ClientInfo
 
 from common.net.server_socket import ServerSocket
 
+from common.util.logger import Logger
+
 from server.thread.client_handler import ClientHandler
 
 
@@ -25,14 +27,15 @@ class ServerHandler(threading.Thread):
         try:
             self.server_socket.open(self.server_ip, self.server_port, ServerHandler.MAX_CONNECTIONS)
         except socket.error:
-            print("Nie mozna otworzyc serwera pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
+            Logger.log("Nie mozna otworzyc serwera pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
             exit(1)
 
-        print("Serwer zostal otworzony pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
+        Logger.log("Serwer zostal otworzony pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
 
         # Handler loop
         while True:
             client_socket, client_address = self.server_socket.socket.accept()
+            Logger.log("Nowe polaczenie klienta z adresu {0}".format(client_address))
 
             client_info = ClientInfo("", client_address, "")
 
