@@ -1,3 +1,5 @@
+# Komunikator P2P z centralnym serwerem
+# Szymon Krygier WCY19IJ1N1
 from PySide6.QtWidgets import QWidget, QMessageBox
 
 from client.form.frm_client_config_gen import Ui_form_client_config
