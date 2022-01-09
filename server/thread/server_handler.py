@@ -25,10 +25,10 @@ class ServerHandler(threading.Thread):
         try:
             self.server_socket.open(self.server_ip, self.server_port, ServerHandler.MAX_CONNECTIONS)
         except socket.error:
-            print("Nie mozna otworzyc serwera pod adresem {0}".format(str(self.server_ip + ":" + self.server_port)))
+            print("Nie mozna otworzyc serwera pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
             exit(1)
 
-        print("Serwer zostal otworzony pod adresem {0}".format(str(self.server_ip + ":" + self.server_port)))
+        print("Serwer zostal otworzony pod adresem {0}".format(str(self.server_ip + ":" + str(self.server_port))))
 
         # Handler loop
         while True:
