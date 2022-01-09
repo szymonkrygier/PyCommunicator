@@ -4,35 +4,62 @@ from PySide6.QtWidgets import QWidget, QMessageBox
 
 from client.form.frm_client_config_gen import Ui_form_client_config
 
+from client.form.frm_main import FrmMain
+
 
 class FrmClientConfig(QWidget, Ui_form_client_config):
-    def __init__(self):
+    def __init__(self, client):
         super(FrmClientConfig, self).__init__()
-        self.nickname = None
-        self.server_ip = None
-        self.server_port = None
         self.setupUi(self)
+        self.client = client
 
         # btn_connect
         self.btn_connect.clicked.connect(self.button_clicked)
 
     def button_clicked(self):
         # Get user input
-        self.nickname = self.tb_nick.text()
-        self.server_ip = self.tb_server_ip.text()
-        self.server_port = self.tb_server_port.text()
+        nickname = self.tb_nick.text()
+        server_ip = self.tb_server_ip.text()
+        server_port = self.tb_server_port.text()
 
         # Check user input
-        if not self.nickname or not self.server_ip or not self.server_port:
+        if not nickname or not server_ip or not server_port:
             message_box = QMessageBox()
             message_box.setWindowTitle("Brak wymaganych danych")
             message_box.setText("Uzupelnij wszystkie wymagane dane!")
             message_box.exec()
             return
 
-        if self.nickname.__contains__('^'):
+        # Validate nickname
+        if nickname.__contains__('^'):
             message_box = QMessageBox()
             message_box.setWindowTitle("Niepoprawny nickname")
             message_box.setText("Nick zawiera niedozwolony znak: '^'")
             message_box.exec()
             return
+
+        # Connect to server
+        if not self.client.client_socket.connect(server_ip, int(server_port)):
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Blad polaczenia z serwerem")
+            message_box.setText("Blad polaczenia z serwerem {0}. Upewnij sie, ze adres IP oraz port sa poprawne".format(str(server_ip + ":" + str(server_port))))
+            message_box.exec()
+            return
+
+        # Authenticate client
+        self.client.client_socket.socket.send("[AUTH]^{0}".format(nickname).encode())
+        received_data = self.client.client_socket.socket.recv(2048)
+        if received_data.decode().startswith("[NAMETAKEN]"):
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Nickname jest zajety")
+            message_box.setText("Nick {0} jest juz zajety! Uzyj innego nicku.")
+            message_box.exec()
+            self.client.client_socket.socket.shutdown()
+            return
+        elif received_data.decode().startswith("[NAMEAVAILABLE"):
+            self.hide()
+            self.client.main_form = FrmMain()
+            self.client.main_form.show()
+        else:
+            print("Nieobslugiwany blad!")
+            exit(1)

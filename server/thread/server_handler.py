@@ -40,6 +40,13 @@ class ServerHandler(threading.Thread):
             client_info = ClientInfo("", client_address, "")
 
             self.connected_clients.append(client_info)
-            client_thread = ClientHandler(client_socket, client_info)
+            client_thread = ClientHandler(self, client_socket, client_info)
             client_thread.daemon = True
             client_thread.start()
+
+    def remove_client(self, client_socket):
+        for (_client_socket, client_info) in self.connected_clients:
+            if _client_socket == client_socket:
+                socket.close()
+                self.connected_clients.remove((_client_socket, client_info))
+                break

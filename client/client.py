@@ -6,28 +6,25 @@ from PySide6.QtWidgets import QApplication
 
 from client.form.frm_client_config import FrmClientConfig
 
+from client.form.frm_main import FrmMain
+
+from client.net.client_socket import ClientSocket
+
 
 class Client:
-    INSTANCE = None
-
     def __init__(self):
         super().__init__()
         self.app = None
+        self.client_socket = ClientSocket()
+        self.main_form = None
         self.init()
 
     def init(self):
-        # Check if instance already exists
-        if Client.INSTANCE is not None:
-            print("Instancja klienta jest juz uruchomiona!")
-
-        # Set global INSTANCE variable to self
-        Client.INSTANCE = self
-
         # Create QApplication instance
         self.app = QApplication(sys.argv)
 
         # Load and show configuration window
-        frm_client_config = FrmClientConfig()
+        frm_client_config = FrmClientConfig(self)
         frm_client_config.show()
 
         # Start the event loop

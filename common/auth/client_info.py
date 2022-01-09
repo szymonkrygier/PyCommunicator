@@ -2,6 +2,7 @@
 # Szymon Krygier WCY19IJ1N1
 from typing import NamedTuple
 
+
 class ClientInfo(NamedTuple):
     nickname: str
     address: str

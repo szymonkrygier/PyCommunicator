@@ -6,6 +6,7 @@ from client.form.frm_main_gen import Ui_MainWindow
 
 
 class FrmMain(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, client):
         super(FrmMain, self).__init__()
         self.setupUi(self)
+        self.client = client
