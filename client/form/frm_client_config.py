@@ -30,3 +30,9 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
             message_box.exec()
             return
 
+        if self.nickname.__contains__('^'):
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Niepoprawny nickname")
+            message_box.setText("Nick zawiera niedozwolony znak: '^'")
+            message_box.exec()
+            return
