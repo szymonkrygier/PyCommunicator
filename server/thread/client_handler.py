@@ -20,6 +20,7 @@ class ClientHandler(threading.Thread):
             try:
                 received_data = self.client_info.client_socket.recv(2048)
             except socket.error:
+                self.connected = False
                 self.server_handler.remove_client(self.client_info)
                 return
 
@@ -49,3 +50,8 @@ class ClientHandler(threading.Thread):
             self.client_info.client_socket.send("[AUTHENTICATED]".encode())
             Logger.log("Poprawna autentykacja klienta o adresie {0} i nickname {1}".format(
                 self.client_info.ip + ":" + str(self.client_info.port), nickname))
+            self.server_handler.send_available_users()
+        # [DISCONNECT] - Client disconnected from server
+        elif command == "[DISCONNECT]":
+            self.connected = False
+            self.server_handler.remove_client(self.client_info.client_socket)

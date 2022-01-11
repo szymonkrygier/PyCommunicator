@@ -8,6 +8,8 @@ from client.form.frm_client_config import FrmClientConfig
 
 from client.form.frm_main import FrmMain
 
+from client.thread.client_listener import ClientListener
+
 
 class Client:
     def __init__(self):
@@ -18,6 +20,7 @@ class Client:
         self.main_form = None
         self.init()
 
+    # Client initialization - create app instance, start the event loop
     def init(self):
         # Create QApplication instance
         self.app = QApplication(sys.argv)
@@ -28,3 +31,9 @@ class Client:
 
         # Start the event loop
         self.app.exec()
+
+    # Client post initialization (after connecting to server) - launch P2P and client listener threads
+    def post_init(self):
+        client_listener = ClientListener(self)
+        client_listener.daemon = True
+        client_listener.start()

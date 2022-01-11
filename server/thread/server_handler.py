@@ -51,4 +51,18 @@ class ServerHandler(threading.Thread):
                 self.connected_clients.remove(client)
                 Logger.log("Klient o adresie {0} i nicku {1} zostal usuniety z serwera".format(
                     client.ip + ":" + str(client.port), client.nickname))
+
+                # Send list of connected users to all clients
+                self.send_available_users()
                 break
+
+    def send_available_users(self):
+        available_users = ""
+
+        for client in self.connected_clients:
+            if client.nickname != "":
+                available_users = available_users + "^" + client.nickname
+
+        for client in self.connected_clients:
+            if client.nickname != "":
+                client.client_socket.send(("[AVAILABLE]" + available_users).encode())

@@ -11,5 +11,10 @@ class FrmMain(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.client = client
 
-    def setup_form(self):
-        self.lbl_nickname.text = self.client.nickname
+        # Set nickname
+        self.lbl_nickname.setText(self.client.nickname)
+
+        self.list_available_users.addItem("Test")
+
+        # Post init client
+        self.client.post_init()

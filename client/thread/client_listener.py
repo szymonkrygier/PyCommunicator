@@ -12,9 +12,10 @@ class ClientListener(threading.Thread):
         # Client listener loop
         while True:
             received_data = self.client.client_socket.receive_string()
+            self.parse_data_from_server(received_data)
 
     def parse_data_from_server(self, data):
-        data_split = data.decode().split("^")
+        data_split = data.split("^")
         command = data_split[0]
 
         # [AVAILABLE] - Receive list with available users
