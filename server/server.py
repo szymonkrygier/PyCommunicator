@@ -2,6 +2,8 @@
 # Szymon Krygier WCY19IJ1N1
 import signal
 
+from common.util.logger import Logger
+
 from server.thread.server_handler import ServerHandler
 
 
@@ -13,8 +15,8 @@ class Server:
         self.server_handler = None
 
         # Set signal handlers
-        signal.signal(signal.SIGINT, self.destroy())
-        signal.signal(signal.SIGTERM, self.destroy())
+        signal.signal(signal.SIGINT, self.handle_signal)
+        signal.signal(signal.SIGTERM, self.handle_signal)
 
         # Init server
         self.init()
@@ -27,7 +29,14 @@ class Server:
 
         self.server_handler.join()
 
+    def handle_signal(self):
+        self.destroy()
+
     def destroy(self):
+        Logger.log("Server is being destroyed...")
+
         # Send info to all clients
         self.server_handler.send_string_to_all_users("[SERVERCLOSING]")
 
+        Logger.log("Server destroyed. Closing application.")
+        exit(0)

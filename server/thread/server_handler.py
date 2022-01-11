@@ -68,6 +68,4 @@ class ServerHandler(threading.Thread):
             if client.nickname != "":
                 available_users = available_users + "^" + client.nickname
 
-        for client in self.connected_clients:
-            if client.nickname != "":
-                self.send_string_to_all_users(("[AVAILABLE]" + available_users).encode())
+        self.send_string_to_all_users(("[AVAILABLE]" + available_users).encode())

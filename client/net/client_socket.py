@@ -38,4 +38,16 @@ class ClientSocket:
                 self.client.destroy()
 
     def receive_string(self):
-        return self.socket.recv(2048).decode()
+        received_data = ""
+
+        try:
+            received_data = self.socket.recv(2048).decode()
+        except socket.error:
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Utracono polaczenie z serwerem!")
+            message_box.setText("Wystapil blad przy odbieraniu danych. Prawdopodobnie serwer zostal zamkniety."
+                                " Aplikacja zostanie zamknieta.")
+            message_box.exec()
+            self.client.destroy()
+
+        return received_data
