@@ -1,5 +1,6 @@
 # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
+import signal
 
 from server.thread.server_handler import ServerHandler
 
@@ -9,12 +10,24 @@ class Server:
         super().__init__()
         self.server_ip = server_ip
         self.server_port = server_port
+        self.server_handler = None
+
+        # Set signal handlers
+        signal.signal(signal.SIGINT, self.destroy())
+        signal.signal(signal.SIGTERM, self.destroy())
+
+        # Init server
         self.init()
 
     def init(self):
         # Start server socket handler
-        server_handler = ServerHandler(self.server_ip, self.server_port)
-        server_handler.daemon = True
-        server_handler.start()
+        self.server_handler = ServerHandler(self.server_ip, self.server_port)
+        self.server_handler.daemon = True
+        self.server_handler.start()
 
-        server_handler.join()
+        self.server_handler.join()
+
+    def destroy(self):
+        # Send info to all clients
+        self.server_handler.send_string_to_all_users("[SERVERCLOSING]")
+

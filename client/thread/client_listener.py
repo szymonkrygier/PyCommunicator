@@ -2,6 +2,8 @@
 # Szymon Krygier WCY19IJ1N1
 import threading
 
+from PySide6.QtWidgets import QMessageBox
+
 
 class ClientListener(threading.Thread):
     def __init__(self, client):
@@ -26,3 +28,10 @@ class ClientListener(threading.Thread):
                 if available_user == command or available_user == self.client.nickname:
                     continue
                 self.client.main_form.list_available_users.addItem(available_user)
+        # [SERVERCLOSING] - Handle server closing event
+        elif command == "[SERVERCLOSING]":
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Utracono polaczenie z serwerem!")
+            message_box.setText("Serwer zostal zamkniety. Aplikacja zostanie zamknieta!")
+            message_box.exec()
+            self.client.destroy()

@@ -26,14 +26,15 @@ class ClientSocket:
         try:
             self.socket.send(data.encode())
         except socket.error:
-            # Show info to user
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Utracono polaczenie z serwerem!")
-            message_box.setText("Utracono polaczenie z serwerem. Aplikacja zostanie zamknieta.")
-            message_box.exec()
-
             # Destroy application
             if not self.client.being_destroyed:
+                # Show info to user
+                message_box = QMessageBox()
+                message_box.setWindowTitle("Utracono polaczenie z serwerem!")
+                message_box.setText("Utracono polaczenie z serwerem. Aplikacja zostanie zamknieta.")
+                message_box.exec()
+
+                # Destroy client
                 self.client.destroy()
 
     def receive_string(self):

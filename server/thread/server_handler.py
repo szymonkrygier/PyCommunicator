@@ -56,6 +56,11 @@ class ServerHandler(threading.Thread):
                 self.send_available_users()
                 break
 
+    def send_string_to_all_users(self, data):
+        for client in self.connected_clients:
+            if client.nickname != "":
+                client.client_socket.send(data)
+
     def send_available_users(self):
         available_users = ""
 
@@ -65,4 +70,4 @@ class ServerHandler(threading.Thread):
 
         for client in self.connected_clients:
             if client.nickname != "":
-                client.client_socket.send(("[AVAILABLE]" + available_users).encode())
+                self.send_string_to_all_users(("[AVAILABLE]" + available_users).encode())
