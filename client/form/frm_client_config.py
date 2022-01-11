@@ -6,6 +6,8 @@ from client.form.frm_client_config_gen import Ui_form_client_config
 
 from client.form.frm_main import FrmMain
 
+from client.net.client_socket import ClientSocket
+
 
 class FrmClientConfig(QWidget, Ui_form_client_config):
     def __init__(self, client):
@@ -39,6 +41,7 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
             return
 
         # Connect to server
+        self.client.client_socket = ClientSocket()
         if not self.client.client_socket.connect(server_ip, int(server_port)):
             message_box = QMessageBox()
             message_box.setWindowTitle("Blad polaczenia z serwerem")
@@ -47,19 +50,21 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
             return
 
         # Authenticate client
-        self.client.client_socket.socket.send("[AUTH]^{0}".format(nickname).encode())
-        received_data = self.client.client_socket.socket.recv(2048)
-        if received_data.decode().startswith("[NAMETAKEN]"):
+        self.client.client_socket.send_string("[AUTH]^{0}".format(nickname))
+        received_data = self.client.client_socket.receive_string()
+
+        # Check response
+        if received_data.startswith("[NAMETAKEN]"):
             message_box = QMessageBox()
             message_box.setWindowTitle("Nickname jest zajety")
-            message_box.setText("Nick {0} jest juz zajety! Uzyj innego nicku.")
+            message_box.setText("Nick {0} jest juz zajety! Uzyj innego nicku.".format(nickname))
             message_box.exec()
             self.client.client_socket.socket.shutdown()
             return
-        elif received_data.decode().startswith("[NAMEAVAILABLE"):
+        elif received_data.startswith("[AUTHENTICATED]"):
+            self.client.nickname = nickname
             self.hide()
-            self.client.main_form = FrmMain()
+            self.client.main_form = FrmMain(self.client)
             self.client.main_form.show()
         else:
-            print("Nieobslugiwany blad!")
-            exit(1)
+            return

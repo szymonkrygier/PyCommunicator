@@ -8,14 +8,13 @@ from client.form.frm_client_config import FrmClientConfig
 
 from client.form.frm_main import FrmMain
 
-from client.net.client_socket import ClientSocket
-
 
 class Client:
     def __init__(self):
         super().__init__()
         self.app = None
-        self.client_socket = ClientSocket()
+        self.nickname = None
+        self.client_socket = None  # For client-server communication
         self.main_form = None
         self.init()
 

@@ -19,5 +19,8 @@ class ClientSocket:
     def disconnect(self):
         self.socket.close()
 
-    def send_stream(self, data):
-        self.socket.send(data)
+    def send_string(self, data: str):
+        self.socket.send(data.encode())
+
+    def receive_string(self):
+        return self.socket.recv(2048).decode()

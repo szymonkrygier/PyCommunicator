@@ -1,9 +1,14 @@
 # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
-from typing import NamedTuple
+from dataclasses import dataclass
+
+import socket
 
 
-class ClientInfo(NamedTuple):
+@dataclass
+class ClientInfo:
     nickname: str
-    address: str
+    ip: str
+    port: int
     public_key: str
+    client_socket: socket

@@ -10,4 +10,10 @@ class ServerSocket:
 
     def open(self, server_ip, server_port, max_connections):
         self.socket.bind((server_ip, server_port))
-        self.socket.listen(max_connections)
+
+        try:
+            self.socket.listen(max_connections)
+        except socket.error:
+            return False
+
+        return True
