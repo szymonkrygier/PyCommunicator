@@ -53,5 +53,7 @@ class ClientHandler(threading.Thread):
             self.server_handler.send_available_users()
         # [DISCONNECT] - Client disconnected from server
         elif command == "[DISCONNECT]":
+            Logger.log("Klient o adresie {0} i nickname {1} rozlaczyl sie od serwera".format(
+                self.client_info.ip + ":" + str(self.client_info.port), self.client_info.nickname))
             self.connected = False
             self.server_handler.remove_client(self.client_info.client_socket)

@@ -11,10 +11,11 @@ class FrmMain(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.client = client
 
+        # Define events
+        self.closeEvent = self.form_closing
+
         # Set nickname
         self.lbl_nickname.setText(self.client.nickname)
 
-        self.list_available_users.addItem("Test")
-
-        # Post init client
-        self.client.post_init()
+    def form_closing(self, event):
+        self.client.destroy()

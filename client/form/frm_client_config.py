@@ -41,7 +41,7 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
             return
 
         # Connect to server
-        self.client.client_socket = ClientSocket()
+        self.client.client_socket = ClientSocket(self.client)
         if not self.client.client_socket.connect(server_ip, int(server_port)):
             message_box = QMessageBox()
             message_box.setWindowTitle("Blad polaczenia z serwerem")
@@ -66,5 +66,6 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
             self.hide()
             self.client.main_form = FrmMain(self.client)
             self.client.main_form.show()
+            self.client.post_init()
         else:
             return

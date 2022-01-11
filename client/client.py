@@ -18,6 +18,7 @@ class Client:
         self.nickname = None
         self.client_socket = None  # For client-server communication
         self.main_form = None
+        self.being_destroyed = False
         self.init()
 
     # Client initialization - create app instance, start the event loop
@@ -37,3 +38,13 @@ class Client:
         client_listener = ClientListener(self)
         client_listener.daemon = True
         client_listener.start()
+
+    # Destroy client - close sockets, destroy application
+    def destroy(self):
+        self.being_destroyed = True
+
+        # Send info to server
+        self.client_socket.send_string("[DISCONNECT]")
+
+        self.app.exit()
+        exit(0)
