@@ -30,7 +30,7 @@ class P2PClient:
                                                                 or ip == "127.0.0.1" or ip == "0.0.0.0"
                                                                 or ip == "localhost"):
                 current_port = current_port + 1
-                continue;
+                continue
 
             try:
                 self.socket.connect((ip, current_port))
@@ -97,28 +97,17 @@ class P2PClient:
             return
 
     def disconnect_from_receiver(self):
-        self.client.main_form.btn_send_message.setEnabled(False)
-        self.client.main_form.btn_disconnect_from_receiver.setEnabled(False)
-        self.client.main_form.btn_send_invitation(True)
-        self.client.main_form.lbl_current_receiver.setText("BRAK ROZMOWCY")
-
-        try:
-            self.socket.send("[DISCONNECT]".encode())
-        except socket.error:
-            pass
-
-        self.socket.close()
-        self.socket = None
-        self.client.busy = False
-
-    def disconnect_from_receiver(self):
         # Update main form
         InvokeMethod(lambda: self.client.main_form.clear_form())
 
         self.client.busy = False
 
         # Send info to receiver
-        self.socket.send("[DISCONNECT]".encode())
+        try:
+            self.socket.send("[DISCONNECT]".encode())
+        except socket.error:
+            pass
+
         self.connected_to_receiver = False
         self.connected_server_handler.connected_to_receiver = False
         self.connected_server_handler = None
