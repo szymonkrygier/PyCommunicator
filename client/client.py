@@ -45,15 +45,21 @@ class Client:
         client_listener.daemon = True
         client_listener.start()
 
-        self.p2p_client = P2PClient()
+        self.p2p_client = P2PClient(self)
 
-        self.p2p_server = P2PServer()
+        self.p2p_server = P2PServer(self)
         self.p2p_server.daemon = True
         self.p2p_server.start()
 
     # Destroy client - close sockets, destroy application
     def destroy(self):
         self.being_destroyed = True
+
+        # Destroy P2P Server + send info to receiver
+        self.p2p_server.destroy()
+
+        # Destroy P2P Client + send info to receiver
+        self.p2p_client.disconnect_from_receiver()
 
         # Send info to server
         self.client_socket.send_string("[DISCONNECT]")

@@ -8,6 +8,9 @@ from PySide6.QtWidgets import QMessageBox
 
 from client.thread.p2p_server_mode import P2PServerMode
 
+from client.util.invoke_method import InvokeMethod
+from client.util.message_box import MessageBox
+
 from common.auth.client_info import ClientInfo
 
 from common.net.server_socket import ServerSocket
@@ -17,51 +20,76 @@ class P2PServer(threading.Thread):
     def __init__(self, client):
         super(P2PServer, self).__init__()
         self.server_socket = ServerSocket()
-        self.is_connected = True
+        self.is_running = True
         self.client = client
+        self.port = 0
         self.connected_client_handler = None
 
     def run(self):
-        self.server_socket.open("", 20009, 2)
+        result, opened_port = self.server_socket.open_port_range("", 20010, 20020, 2)
+        self.port = opened_port
 
-        while self.is_connected:
+        while self.is_running:
             client_socket, client_address = self.server_socket.socket.accept()
 
             # Accept client if client is not talking to someone else
             if self.connected_client_handler is None and not self.client.busy:
                 # Get invitation details
-                invitation = self.server_socket.socket.recv(2048).decode().split("^")
+                invitation = client_socket.recv(2048).decode().split("^")
                 if invitation[0] != "[INVITE]":
                     client_socket.close()
                     return
 
                 # Ask client if he wants to talk
-                message_box = QMessageBox
-                message_box.setWindowTitle("Nowe zaproszenie do rozmowy")
-                message_box.setText("Uzytkownik {0} wyslal Ci zaproszenie do rozmowy".format(invitation[1]))
-                message_box.setInformativeText("Czy chcesz przyjac zaproszenie?")
-                message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                message_box.setDefaultButton(QMessageBox.Yes)
-                message_box_result = message_box.exec()
-
-                # Accept receiver
-                if message_box_result == QMessageBox.Yes:
-                    client_socket.send("[ACCEPTED]^{0}".encode())
-
-                    client_info = ClientInfo(invitation[1], client_address[0], client_address[1], invitation[2],
-                                             client_socket)
-
-                    self.client.server_mode = True
-                    self.client.busy = True
-
-                    self.connected_client_handler = P2PServerMode(self, client_info)
-                    self.connected_client_handler.daemon = True
-                    self.connected_client_handler.start()
-                elif message_box_result == QMessageBox.No:
-                    client_socket.send("[DECLINED]".encode())
-                    client_socket.close()
+                InvokeMethod(lambda: self.answer_invitation(invitation[1], client_socket, client_address[0],
+                                                            client_address[1], invitation[2]))
 
             # Send info to client that user is talking with someone else
             else:
                 client_socket.send("[BUSY]".encode())
                 client_socket.close()
+
+    def answer_invitation(self, nickname, client_socket, ip, port, public_key):
+        client_answer = MessageBox.show_message_box_yes_no(
+            "Nowe zaproszenie do rozmowy", "Uzytkownik {0} wyslal Ci zaproszenie do rozmowy".
+                format(nickname), "Czy chcesz przyjac zaproszenie?")
+
+        # Accept receiver
+        if client_answer:
+            client_socket.send("[ACCEPTED]^{0}".format("publickey").encode())
+
+            client_info = ClientInfo(nickname, ip, port, public_key,
+                                     client_socket)
+
+            self.client.server_mode = True
+            self.client.busy = True
+
+            self.client.main_form.btn_send_message.setEnabled(True)
+            self.client.main_form.btn_disconnect_from_receiver.setEnabled(True)
+            self.client.main_form.btn_send_invitation.setEnabled(False)
+            self.client.main_form.lbl_current_receiver.setText(nickname)
+
+            self.connected_client_handler = P2PServerMode(self, client_info)
+            self.connected_client_handler.daemon = True
+            self.connected_client_handler.start()
+        elif not client_answer:
+            client_socket.send("[DECLINED]".encode())
+            client_socket.close()
+
+    def disconnect_from_receiver(self):
+        # Update main form
+        InvokeMethod(lambda: self.client.main_form.clear_form())
+
+        # Send info to receiver
+        self.connected_client_handler.client_info.client_socket.send("[DISCONNECT]".encode())
+        self.connected_client.handler.client_info.client_socket.close()
+        self.connected_client_handler.connected_to_server = False
+        self.connected_client_handler = None
+
+        self.client.busy = False
+
+    def destroy(self):
+        self.disconnect_from_receiver()
+        self.server_socket.socket.close()
+        self.server_socket = None
+        self.is_running = False

@@ -28,6 +28,7 @@ class FrmMain(QMainWindow, Ui_MainWindow):
 
         self.btn_send_invitation.clicked.connect(self.send_invitation)
         self.btn_send_message.clicked.connect(self.send_message)
+        self.btn_disconnect_from_receiver.clicked.connect(self.disconnect_from_receiver)
 
     def form_closing(self, event):
         self.client.destroy()
@@ -40,18 +41,35 @@ class FrmMain(QMainWindow, Ui_MainWindow):
         self.btn_send_invitation.setEnabled(False)
 
         # Ask server about receiver IP and port
-        self.client.client_socket.send_string("[INVITE]^{0}".format(self.list_available_users.selectedItems[0]))
+        selected_items = self.list_available_users.selectedItems()
+        self.client.client_socket.send_string("[INVITE]^{0}".format(selected_items[0].text()))
 
     def send_message(self):
+        if self.tb_message.text() == "":
+            return
+
         now = datetime.now()
-
-        stream = "[MSG]^{0}".format(self.tb_message.text())
-
-        if self.client.server_mode:
-            self.client.p2p_server.server_socket.socket.send(stream.encode())
-        elif not self.client.server_mode:
-            self.client.p2p_client.socket.send(stream.encode())
 
         self.list_messages.addItem("[JA][{0}] > {1}".format(now.strftime("%Y-%m-%d %H:%M"), self.tb_message.text()))
 
+        stream = "[MSG]^{0}".format(self.tb_message.text())
+
         self.tb_message.clear()
+
+        if self.client.server_mode:
+            self.client.p2p_server.connected_client_handler.client_info.client_socket.send(stream.encode())
+        elif not self.client.server_mode:
+            self.client.p2p_client.socket.send(stream.encode())
+
+    def clear_form(self):
+        self.client.main_form.list_messages.clear()
+        self.client.main_form.btn_send_message.setEnabled(False)
+        self.client.main_form.btn_disconnect_from_receiver.setEnabled(False)
+        self.client.main_form.btn_send_invitation.setEnabled(True)
+        self.client.main_form.lbl_current_receiver.setText("BRAK ROZMOWCY")
+
+    def disconnect_from_receiver(self):
+        if self.client.server_mode:
+            self.client.p2p_server.disconnect_from_receiver()
+        elif not self.client.server_mode:
+            self.client.p2p_client.disconnect_from_receiver()

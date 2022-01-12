@@ -42,4 +42,4 @@ class ClientListener(threading.Thread):
             self.client.main_form.btn_send_invitation.setEnabled(True)
         # [INVITE] - Receive client info from server
         elif command == "[INVITE]":
-            self.client.p2p_client.send_invitation(data_split[1], int(data_split[2]), data_split[3])
+            self.client.p2p_client.send_invitation(data_split[1], data_split[2])
