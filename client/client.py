@@ -6,9 +6,11 @@ from PySide6.QtWidgets import QApplication
 
 from client.form.frm_client_config import FrmClientConfig
 
-from client.form.frm_main import FrmMain
-
 from client.thread.client_listener import ClientListener
+
+from client.thread.p2p_client import P2PClient
+
+from client.thread.p2p_server import P2PServer
 
 
 class Client:
@@ -19,6 +21,10 @@ class Client:
         self.client_socket = None  # For client-server communication
         self.main_form = None
         self.being_destroyed = False
+        self.p2p_client = None
+        self.p2p_server = None
+        self.server_mode = False
+        self.busy = False
         self.init()
 
     # Client initialization - create app instance, start the event loop
@@ -38,6 +44,12 @@ class Client:
         client_listener = ClientListener(self)
         client_listener.daemon = True
         client_listener.start()
+
+        self.p2p_client = P2PClient()
+
+        self.p2p_server = P2PServer()
+        self.p2p_server.daemon = True
+        self.p2p_server.start()
 
     # Destroy client - close sockets, destroy application
     def destroy(self):

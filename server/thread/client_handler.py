@@ -57,3 +57,14 @@ class ClientHandler(threading.Thread):
                 self.client_info.ip + ":" + str(self.client_info.port), self.client_info.nickname))
             self.connected = False
             self.server_handler.remove_client(self.client_info.client_socket)
+        # [INVITE] - Send client info to client
+        elif command == "[INVITE]":
+            for client_entry in self.server_handler.connected_clients:
+                if client_entry.nickname == data_split[1]:
+                    client_entry.client_socket\
+                        .send("[INVITE]^{0}^{1}^{2}"
+                              .format(client_entry.ip, str(client_entry.port), data_split[1]).encode())
+                    return
+
+            # If not found for some reason
+            client_entry.client_socket.send("[INVITEFAILED]".encode())

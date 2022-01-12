@@ -4,6 +4,8 @@ import threading
 
 from PySide6.QtWidgets import QMessageBox
 
+from client.util.message_box import MessageBox
+
 
 class ClientListener(threading.Thread):
     def __init__(self, client):
@@ -30,8 +32,14 @@ class ClientListener(threading.Thread):
                 self.client.main_form.list_available_users.addItem(available_user)
         # [SERVERCLOSING] - Handle server closing event
         elif command == "[SERVERCLOSING]":
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Utracono polaczenie z serwerem!")
-            message_box.setText("Serwer zostal zamkniety. Aplikacja zostanie zamknieta!")
-            message_box.exec()
+            MessageBox.show_message_box("Utracono polaczenie z serwerem!",
+                                        "Serwer zostal zamkniety. Aplikacja zostanie zamknieta!")
             self.client.destroy()
+        # [INVITEFAILED] - Server could not return client info
+        elif command == "[INVITEFAILED]":
+            MessageBox.show_message_box("Nie mozna wyslac zaproszenia",
+                                        "Nie mozna wyslac zaproszenia do rozmowcy. Serwer nie zwrocil danych odbiorcy!")
+            self.client.main_form.btn_send_invitation.setEnabled(True)
+        # [INVITE] - Receive client info from server
+        elif command == "[INVITE]":
+            self.client.p2p_client.send_invitation(data_split[1], int(data_split[2]), data_split[3])

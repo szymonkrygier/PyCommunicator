@@ -8,6 +8,8 @@ from client.form.frm_main import FrmMain
 
 from client.net.client_socket import ClientSocket
 
+from client.util.message_box import MessageBox
+
 
 class FrmClientConfig(QWidget, Ui_form_client_config):
     def __init__(self, client):
@@ -26,27 +28,20 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
 
         # Check user input
         if not nickname or not server_ip or not server_port:
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Brak wymaganych danych")
-            message_box.setText("Uzupelnij wszystkie wymagane dane!")
-            message_box.exec()
+            MessageBox.show_message_box("Brak wymaganych danych", "Uzupelnij wszystkie wymagane dane!")
             return
 
         # Validate nickname
         if nickname.__contains__('^'):
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Niepoprawny nickname")
-            message_box.setText("Nick zawiera niedozwolony znak: '^'")
-            message_box.exec()
+            MessageBox.show_message_box("Niepoprawny nickname", "Nick zawiera niedozwolony znak: '^'")
             return
 
         # Connect to server
         self.client.client_socket = ClientSocket(self.client)
         if not self.client.client_socket.connect(server_ip, int(server_port)):
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Blad polaczenia z serwerem")
-            message_box.setText("Blad polaczenia z serwerem {0}. Upewnij sie, ze adres IP oraz port sa poprawne".format(str(server_ip + ":" + str(server_port))))
-            message_box.exec()
+            MessageBox.show_message_box("Blad polaczenia z serwerem",
+                                        "Blad polaczenia z serwerem {0}. Upewnij sie, ze adres IP oraz port sa poprawne"
+                                        .format(str(server_ip + ":" + str(server_port))))
             return
 
         # Authenticate client
@@ -55,10 +50,8 @@ class FrmClientConfig(QWidget, Ui_form_client_config):
 
         # Check response
         if received_data.startswith("[NAMETAKEN]"):
-            message_box = QMessageBox()
-            message_box.setWindowTitle("Nickname jest zajety")
-            message_box.setText("Nick {0} jest juz zajety! Uzyj innego nicku.".format(nickname))
-            message_box.exec()
+            MessageBox.show_message_box("Nickname jest zajety", "Nick {0} jest juz zajety! Uzyj innego nicku.".
+                                        format(nickname))
             self.client.client_socket.socket.shutdown()
             return
         elif received_data.startswith("[AUTHENTICATED]"):
