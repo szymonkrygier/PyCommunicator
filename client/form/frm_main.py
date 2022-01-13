@@ -1,8 +1,12 @@
 # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
+import base64
+
 from datetime import datetime
 
 from PySide6.QtWidgets import QMainWindow
+
+from client.crypto.rsa_crypto import RSACrypto
 
 from client.form.frm_main_gen import Ui_MainWindow
 
@@ -50,9 +54,18 @@ class FrmMain(QMainWindow, Ui_MainWindow):
 
         now = datetime.now()
 
+        public_key = None
+
+        if self.client.server_mode:
+            public_key = self.client.p2p_server.connected_client_handler.client_info.public_key
+        elif not self.client.server_mode:
+            public_key = self.client.p2p_client.connected_server_handler.client_info.public_key
+
+        encrypted_message = RSACrypto.encrypt(self.tb_message.text().encode(), public_key)
+
         self.list_messages.addItem("[JA][{0}] > {1}".format(now.strftime("%Y-%m-%d %H:%M"), self.tb_message.text()))
 
-        stream = "[MSG]^{0}".format(self.tb_message.text())
+        stream = "[MSG]^{0}".format(encrypted_message)
 
         self.tb_message.clear()
 

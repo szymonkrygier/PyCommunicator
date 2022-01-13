@@ -1,6 +1,9 @@
 # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
+import base64
 import socket
+
+from client.crypto.rsa_crypto import RSACrypto
 
 from client.thread.p2p_client_mode import P2PClientMode
 
@@ -54,8 +57,14 @@ class P2PClient:
 
         self.__try_port_range(ip, 20010, 20020, receiver)
 
+        # Generate public and private key pair
+        public_key, private_key = RSACrypto.generate_keys()
+
+        self.client.public_key = public_key
+        self.client.private_key = private_key
+
         # Send invitation and get response
-        self.socket.send("[INVITE]^{0}^{1}".format(self.client.nickname, "publickey").encode())
+        self.socket.send("[INVITE]^{0}^{1}".format(self.client.nickname, public_key.decode()).encode())
 
         received_data = self.socket.recv(2048).decode()
 

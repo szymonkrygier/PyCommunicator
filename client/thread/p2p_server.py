@@ -1,10 +1,10 @@
 # Komunikator P2P z centralnym serwerem
 # Szymon Krygier WCY19IJ1N1
-import socket
-
 import threading
 
-from PySide6.QtWidgets import QMessageBox
+import socket
+
+from client.crypto.rsa_crypto import RSACrypto
 
 from client.thread.p2p_server_mode import P2PServerMode
 
@@ -49,16 +49,22 @@ class P2PServer(threading.Thread):
                 client_socket.send("[BUSY]".encode())
                 client_socket.close()
 
-    def answer_invitation(self, nickname, client_socket, ip, port, public_key):
+    def answer_invitation(self, nickname, client_socket, ip, port, receiver_public_key):
         client_answer = MessageBox.show_message_box_yes_no(
             "Nowe zaproszenie do rozmowy", "Uzytkownik {0} wyslal Ci zaproszenie do rozmowy".
                 format(nickname), "Czy chcesz przyjac zaproszenie?")
 
         # Accept receiver
         if client_answer:
-            client_socket.send("[ACCEPTED]^{0}".format("publickey").encode())
+            # Generate public and private key pair
+            public_key, private_key = RSACrypto.generate_keys()
 
-            client_info = ClientInfo(nickname, ip, port, public_key,
+            self.client.public_key = public_key
+            self.client.private_key = private_key
+
+            client_socket.send("[ACCEPTED]^{0}".format(public_key.decode()).encode())
+
+            client_info = ClientInfo(nickname, ip, port, receiver_public_key,
                                      client_socket)
 
             self.client.server_mode = True
@@ -77,12 +83,18 @@ class P2PServer(threading.Thread):
             client_socket.close()
 
     def disconnect_from_receiver(self):
+        # Send info to receiver
+        try:
+            self.connected_client_handler.client_info.client_socket.send("[DISCONNECT]".encode())
+        except socket.error:
+            pass
+        except AttributeError:
+            pass
+
         # Update main form
         InvokeMethod(lambda: self.client.main_form.clear_form())
 
-        # Send info to receiver
-        self.connected_client_handler.client_info.client_socket.send("[DISCONNECT]".encode())
-        self.connected_client.handler.client_info.client_socket.close()
+        self.connected_client_handler.client_info.client_socket.close()
         self.connected_client_handler.connected_to_server = False
         self.connected_client_handler = None
 

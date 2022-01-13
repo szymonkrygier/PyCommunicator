@@ -6,6 +6,8 @@ import threading
 
 import socket
 
+from client.crypto.rsa_crypto import RSACrypto
+
 from client.util.invoke_method import InvokeMethod
 
 
@@ -37,9 +39,12 @@ class P2PServerMode(threading.Thread):
             now = datetime.now()
             message = data_split[1]
 
+            decrypted_message = RSACrypto.decrypt(message, self.p2p_server.client.private_key)
+
             InvokeMethod(lambda: self.p2p_server.client.main_form.list_messages.addItem("[{0}][{1}] > {2}"
                                                                    .format(self.client_info.nickname,
-                                                                           now.strftime("%Y-%m-%d %H:%M"), message)))
+                                                                           now.strftime("%Y-%m-%d %H:%M"),
+                                                                           decrypted_message.decode())))
         # [DISCONNECT] - Receiver disconnected
         if command == "[DISCONNECT]":
             self.p2p_server.disconnect_from_receiver()

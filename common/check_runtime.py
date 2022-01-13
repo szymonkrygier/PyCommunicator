@@ -11,7 +11,8 @@ if sys.version_info < (3, 9, 7):
     exit(1)
 
 # Sprawdzenie czy wymagane moduly sa dostepne
-requiredModules = ['socket', 'PySide6', 'threading', 'array', 'dataclasses', 'datetime', 'signal', 'typing']
+requiredModules = ['socket', 'PySide6', 'threading', 'array', 'dataclasses',
+                   'datetime', 'signal', 'typing', 'Crypto', 'base64']
 
 for module in requiredModules:
     if not module in sys.modules and importlib.util.find_spec(module) is None:

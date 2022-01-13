@@ -25,6 +25,8 @@ class Client:
         self.p2p_server = None
         self.server_mode = False
         self.busy = False
+        self.public_key = None
+        self.private_key = None
         self.init()
 
     # Client initialization - create app instance, start the event loop
@@ -55,14 +57,14 @@ class Client:
     def destroy(self):
         self.being_destroyed = True
 
+        # Send info to server
+        self.client_socket.send_string("[DISCONNECT]")
+
         # Destroy P2P Server + send info to receiver
         self.p2p_server.destroy()
 
         # Destroy P2P Client + send info to receiver
         self.p2p_client.disconnect_from_receiver()
-
-        # Send info to server
-        self.client_socket.send_string("[DISCONNECT]")
 
         self.app.exit()
         exit(0)
